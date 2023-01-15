@@ -1,18 +1,17 @@
 import torch
 import argparse
 import numpy as np
+import pandas as pd
 
-import skvideo
-skvideo.setFFmpegPath('C:/ffmpeg/bin')
 import skvideo.io
-import matplotlib.pyplot as plt
+from PIL import Image
 
 from detect_new import detect, draw_bounding_boxes_yolo
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default='yolov7.pt', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default=r'C:\Users\caleb\Downloads\58168_003392_Sideline_edited.mp4',
+    parser.add_argument('--source', type=str, default='/home/caleb/Downloads/58168_003392_Sideline.mp4',
                         help='source')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
@@ -47,9 +46,19 @@ if __name__ == '__main__':
                                 agnostic_nms=opt.agnostic_nms
                                 )
 
-    videodata = skvideo.io.vread(r"C:\Users\caleb\Downloads\58168_003392_Sideline_edited.mp4")
-    frame = videodata[304, :, :, :]
+    videodata = skvideo.io.vread('/home/caleb/Downloads/58168_003392_Sideline.mp4')
+    n_frame = 304
+    frame = videodata[n_frame, :, :, :]
     frame = np.transpose(frame, (2, 0, 1))
     frame_tf = torch.from_numpy(frame)
-    output = draw_bounding_boxes_yolo()
 
+    data = det_all_frames.numpy()
+    bounding_df = pd.DataFrame(data, columns=['left', 'top', 'right', 'bottom', 'score', 'object', 'frame'])
+    bounding_df = bounding_df[bounding_df['frame']==n_frame]
+
+    output = draw_bounding_boxes_yolo(bounding_df, frame_tf)
+    output_np = output.numpy()
+    output_np = np.transpose(output_np, (1, 2, 0))
+
+    im = Image.fromarray(output_np)
+    im.save("/home/caleb/Downloads/yolo_img.jpeg")

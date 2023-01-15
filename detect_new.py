@@ -5,6 +5,7 @@ import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
+import pandas as pd
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -14,10 +15,9 @@ from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 from torchvision.utils import draw_bounding_boxes
 
+
 def detect(source: str, weights: str, imgsz: int, trace: str, device: str, augment: str, conf_thres: str,
            iou_thres: str, classes: str, agnostic_nms: str, save_img=False):
-
-
     # Initialize
     set_logging()
     device = select_device(device)
@@ -113,19 +113,20 @@ def detect(source: str, weights: str, imgsz: int, trace: str, device: str, augme
     return det_all_frames
 
 
-def draw_bounding_boxes_yolo(boxes_tf: torch.Tensor, image: torch.Tensor):
+def draw_bounding_boxes_yolo(bounding_df: pd.DataFrame, image: torch.Tensor):
     """
     This function draws bounding boxes around objects in an image based on data in a dataframe and colors the bounding box based on a contact value.
 
     Input:
     frame_helm (pd.DataFrame): a dataframe containing object data including bounding box coordinates
     image (torch.Tensor): a tensor representing the image on which to draw the bounding boxes
-    contact (int): an integer value representing the level of contact (used to determine the color of the bounding box)
 
     Output:
     output (torch.Tensor): image with the bounding box
     """
 
+    bounding_boxes_df = bounding_df[['left', 'top', 'right', 'bottom']]
+    boxes_tf = torch.from_numpy(bounding_boxes_df.values)
     boxes_tf = boxes_tf.type(torch.FloatTensor)
 
     output = draw_bounding_boxes(image=image,
