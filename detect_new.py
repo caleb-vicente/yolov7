@@ -6,6 +6,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
 import pandas as pd
+from tqdm import tqdm
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -57,7 +58,7 @@ def detect(source: str, weights: str, imgsz: int, trace: str, device: str, augme
     old_img_b = 1
 
     t0 = time.time()
-    for path, img, im0s, vid_cap in dataset:
+    for path, img, im0s, vid_cap in tqdm(dataset):
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -104,11 +105,6 @@ def detect(source: str, weights: str, imgsz: int, trace: str, device: str, augme
                 det_all_frames = det
             else:
                 det_all_frames = torch.cat((det_all_frames, det), dim=0)
-
-            # Print time (inference + NMS)
-            print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
-
-    print(f'Done. ({time.time() - t0:.3f}s)')
 
     return det_all_frames
 

@@ -11,7 +11,7 @@ from detect_new import detect, draw_bounding_boxes_yolo
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default='yolov7.pt', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default='/home/caleb/Downloads/58168_003392_Sideline.mp4',
+    parser.add_argument('--source', type=str, default=r'C:\Users\caleb\Downloads\58168_003392_Sideline_edited.mp4',
                         help='source')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
