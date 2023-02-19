@@ -98,13 +98,13 @@ def detect(source: str, weights: str, imgsz: int, trace: str, device: str, augme
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
             # Add frame to process detection array
-            det = torch.cat((det, frame * torch.ones((det.shape[0], 1))), dim=1)
+            det = torch.cat((det, frame * torch.ones((det.shape[0], 1))), dim=1).to_device(device)
 
             # Create tensor with all bounding boxes per frame
             if (frame == 1) & (i == 0):
-                det_all_frames = det
+                det_all_frames = det.to_device(device)
             else:
-                det_all_frames = torch.cat((det_all_frames, det), dim=0)
+                det_all_frames = torch.cat((det_all_frames, det), dim=0).to_device(device)
 
     return det_all_frames
 
